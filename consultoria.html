@@ -45,11 +45,12 @@
     .hero {
       position: relative;
       min-height: 85vh;
+      min-height: 85dvh; /* Suporte a navegadores mobile modernos (como o do Instagram) */
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 100px 24px 40px;
+      padding: 80px 24px 40px;
       text-align: center;
       overflow: hidden;
     }
@@ -189,7 +190,7 @@
     }
 
     section.proposta-section {
-      padding-top: 40px; 
+      padding-top: 20px; 
     }
 
     .inner {
@@ -574,7 +575,6 @@
         if (e.isIntersecting) {
           const el = e.target;
           
-          // Se o elemento já estiver visível na tela logo ao carregar, tira o delay para aparecer na hora
           const bounding = el.getBoundingClientRect();
           const isInViewportNow = bounding.top < window.innerHeight && bounding.bottom >= 0;
           
@@ -584,16 +584,29 @@
           obs.unobserve(el);
         }
       });
-    }, { threshold: 0.05 }); // Threshold reduzido para engatilhar mais fácil se a pontinha do elemento aparecer
+    }, { threshold: 0.01 }); // Acionamento ultra sensível para navegadores instáveis
 
     const animatedElements = document.querySelectorAll('.fade-in, .pain-item, .step-card');
     
     animatedElements.forEach((el, i) => {
       if (el.classList.contains('pain-item') || el.classList.contains('step-card')) {
-        el.dataset.delay = i * 80;
+        el.dataset.delay = i * 60; // Delays ligeiramente reduzidos para maior fluidez
       }
       obs.observe(el);
     });
+
+    // ── SOLUÇÃO PRO INSTAGRAM (FALLBACK AUTOMÁTICO) ──
+    // Se após 450ms a primeira parte ("A Proposta") ainda estiver invisível devido a bugs do app,
+    // nós forçamos ela e os elementos iniciais a aparecerem na marra.
+    setTimeout(() => {
+      const proposta = document.querySelector('.proposta-section .fade-in');
+      if (proposta && !proposta.classList.contains('visible')) {
+        proposta.classList.add('visible');
+        
+        // Também ativa os primeiros itens da lista se já estiverem visíveis
+        document.querySelectorAll('.para-quem .fade-in').forEach(el => el.classList.add('visible'));
+      }
+    }, 450);
   </script>
 </body>
 </html>
